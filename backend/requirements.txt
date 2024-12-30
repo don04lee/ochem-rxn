@@ -1,0 +1,3 @@
+fastapi[all]
+rdkit-pypi
+psycopg2-binary
