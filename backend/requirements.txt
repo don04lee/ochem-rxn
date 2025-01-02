@@ -1,3 +1,4 @@
 fastapi[all]
+uvicorn
 rdkit-pypi
 psycopg2-binary

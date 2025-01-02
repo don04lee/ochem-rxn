@@ -1,26 +1,35 @@
-version: "3.8"
 services:
   app:
+    container_name: "app"
     build: .
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/reaction_db
+      - DATABASE_URL=db://postgres_user:postgres_pw@db:5432/ochem-rxn_db
     depends_on:
+      db:
+        condition: service_healthy
+    links:
       - db
     restart: always
 
   db:
+    container_name: "db"
     image: postgres:14
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: reaction_db
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_pw
+      - POSTGRES_DB=ochem-rxn_db
     ports:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres_user -d ochem-rxn_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   db-data:
