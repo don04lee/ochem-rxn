@@ -1,4 +1,6 @@
 fastapi[all]
+redis
+types-redis
 uvicorn
 rdkit-pypi
 psycopg2-binary
