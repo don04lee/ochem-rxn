@@ -2,7 +2,7 @@
 
 by Dong Woo Lee
 
-This is a full-stack project meant to combine my interests in Computer Science and Biochemistry by making an organic chemistry reaction predictor that predicts the organic chemistry reaction using pre-trained models from [OpenChem](https://github.com/Mariewelt/OpenChem/tree/master).
+This is a full-stack project meant to combine my interests in Computer Science and Biochemistry by making an organic chemistry reaction predictor that predicts the organic chemistry reaction using pre-trained models from [IBM RXN](https://rxn.app.accelerate.science/rxn).
 
 ## Plan
 
@@ -22,7 +22,7 @@ This will be done through [PostGreSQL](https://github.com/postgres/postgres).
 
 ### AI Model
 
-The hosting of the AI model by [OpenChem](https://github.com/Mariewelt/OpenChem/tree/master) will be hosted under AWS SageMaker.
+The hosting of the AI model by [IBM RXN](https://rxn.app.accelerate.science/rxn) will be hosted under AWS SageMaker.
 
 ### Deployment
 
