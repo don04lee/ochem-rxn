@@ -3,4 +3,6 @@ redis
 types-redis
 uvicorn
 rdkit-pypi
+rxn4chemistry
+pydantic
 psycopg2-binary
