@@ -4,6 +4,8 @@ services:
     build: .
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=db://postgres_user:postgres_pw@db:5432/ochem-rxn_db
     depends_on:

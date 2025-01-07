@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
-from typing import Optional
 from rxn4chemistry import RXN4ChemistryWrapper
 
 # Must set RXN_API_KEY as environment variable to make RXN4Chemistry work
