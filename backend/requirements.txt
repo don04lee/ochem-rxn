@@ -1,10 +1,8 @@
 fastapi[all]
-redis
-types-redis
 uvicorn
 rdkit-pypi
 rxn4chemistry
 pydantic
+sqlalchemy[asyncio]
 psycopg2-binary
-sqlalchemy
 asyncpg

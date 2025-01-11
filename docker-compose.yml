@@ -7,7 +7,7 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=db://postgres_user:postgres_pw@db:5432/ochem-rxn_db
+      - DATABASE_URL=postgresql://postgres_user:postgres_pw@db:5432/ochem-rxn_db
     depends_on:
       db:
         condition: service_healthy

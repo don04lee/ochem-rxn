@@ -1,7 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 import os
+from sqlalchemy.orm import Session
+from backend.database import SessionLocal, engine
+from backend.models import Base, ReactionHistory
 from rxn4chemistry import RXN4ChemistryWrapper
+from backend.init_db import init_db
 
 # Must set RXN_API_KEY as environment variable to make RXN4Chemistry work
 api_key = os.getenv("RXN_API_KEY")
@@ -17,7 +21,20 @@ rxn.create_project(PROJECT_NAME)
 rxn.set_project(rxn.project_id)
 print(f"The project ID is {rxn.project_id} with name {PROJECT_NAME}")
 
+init_db()
+print("Database has been initialized.")
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(title="Organic Chemistry Reaction Predictor API")
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 class ReactionInput(BaseModel):
@@ -95,15 +112,20 @@ async def predict_reaction(reaction: ReactionInput):
 
 
 @app.post("/history")
-async def save_history(reaction: ReactionInput):
+async def save_history(reaction: ReactionInput, db: Session = Depends(get_db)):
     # Placeholder, save to PostgreSQL
-    return {"message": "Reaction saved to history", "reaction": reaction}
+    new_reaction = ReactionHistory(
+        reactants=reaction.reactants, product=reaction.product
+    )
+    db.add(new_reaction)
+    db.commit()
+    db.refresh(new_reaction)
+    return {"message": "Reaction saved", "reaction_id": new_reaction.id}
 
 
 @app.get("/history")
-async def get_history():
-    # Placeholder, get from PostgreSQL
+async def get_history(db: Session = Depends(get_db)):
+    reactions = db.query(ReactionHistory).all()  # Fetch all saved reactions
     return [
-        {"id": 1, "reactants": "CCO", "product": "COOH", "mechanism": "Sn1"},
-        {"id": 2, "reactants": "CCC", "product": "C=C", "mechanism": "E2"},
+        {"id": r.id, "reactants": r.reactants, "product": r.product} for r in reactions
     ]
