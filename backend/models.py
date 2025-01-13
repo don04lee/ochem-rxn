@@ -11,4 +11,4 @@ class ReactionHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     reactants = Column(String, nullable=False)
     product = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcoffset)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

@@ -3,6 +3,6 @@ uvicorn
 rdkit-pypi
 rxn4chemistry
 pydantic
-sqlalchemy[asyncio]
+sqlalchemy[asyncio]>=2.0.0
 psycopg2-binary
 asyncpg

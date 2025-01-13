@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 import os
-from sqlalchemy.orm import Session
-from backend.database import SessionLocal, engine
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from backend.database import SessionLocal, get_db, init_db
 from backend.models import Base, ReactionHistory
 from rxn4chemistry import RXN4ChemistryWrapper
 from backend.init_db import init_db
@@ -24,17 +25,12 @@ print(f"The project ID is {rxn.project_id} with name {PROJECT_NAME}")
 init_db()
 print("Database has been initialized.")
 
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="Organic Chemistry Reaction Predictor API")
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+@app.on_event("startup")
+async def startup():
+    await init_db()
 
 
 class ReactionInput(BaseModel):
@@ -48,6 +44,15 @@ class ReactionInput(BaseModel):
     reactants: (
         str  # SMILES notation, all solvents should be included in the SMILES notation
     )
+
+
+class ReactionComplete(BaseModel):
+    """
+    Contains both the reactants and product within the reaction
+    """
+
+    reactants: str  # SMILES notation, at least two reactants
+    product: str  # SMILES notation
 
 
 # Fast API handles JSON serialization and deserialization
@@ -112,20 +117,18 @@ async def predict_reaction(reaction: ReactionInput):
 
 
 @app.post("/history")
-async def save_history(reaction: ReactionInput, db: Session = Depends(get_db)):
-    # Placeholder, save to PostgreSQL
+async def save_history(reaction: ReactionComplete, db: AsyncSession = Depends(get_db)):
     new_reaction = ReactionHistory(
         reactants=reaction.reactants, product=reaction.product
     )
     db.add(new_reaction)
-    db.commit()
-    db.refresh(new_reaction)
+    await db.commit()
+    await db.refresh(new_reaction)
     return {"message": "Reaction saved", "reaction_id": new_reaction.id}
 
 
 @app.get("/history")
-async def get_history(db: Session = Depends(get_db)):
-    reactions = db.query(ReactionHistory).all()  # Fetch all saved reactions
-    return [
-        {"id": r.id, "reactants": r.reactants, "product": r.product} for r in reactions
-    ]
+async def get_history(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(ReactionHistory))
+    reactions = result.scalars().all()
+    return reactions
