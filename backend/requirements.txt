@@ -6,3 +6,6 @@ pydantic
 sqlalchemy[asyncio]>=2.0.0
 psycopg2-binary
 asyncpg
+pytest
+pytest-asyncio
+httpx
