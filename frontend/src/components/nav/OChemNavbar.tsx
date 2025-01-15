@@ -5,7 +5,6 @@ export default function OChemNavbar(props) {
   return (
     <Navbar bg="dark" variant="dark" sticky="top" expand="sm" collapseOnSelect>
       <Container>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Brand as={Link} to="/">
           <img
             alt="OChem Reaction Predictor Logo"
@@ -14,7 +13,6 @@ export default function OChemNavbar(props) {
             height="30"
             className="d-inline-block align-top"
           />{" "}
-          OChem Reaction Predictor
         </Navbar.Brand>
         <Navbar.Collapse id="responsive-navbar-nav" className="me-auto">
           <Nav>

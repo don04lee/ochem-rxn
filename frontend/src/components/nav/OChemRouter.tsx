@@ -11,8 +11,8 @@ export default function OChemRouter() {
       <Routes>
         <Route path="/" element={<OChemRxn />}>
           <Route index element={<OChemLandingPage />}></Route>
-          <Route path="/product-predict" element={<OChemPredict />}></Route>
-          <Route path="/history" element={<OChemHistory />}></Route>
+          <Route path="product-predict" element={<OChemPredict />}></Route>
+          <Route path="history" element={<OChemHistory />}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -25,9 +25,6 @@ export default function OChemRxn() {
       <OChemNavbar />
       <div style={{ margin: "1rem" }}>
         <Outlet />
-        {/* <BadgerBudsDataContext.Provider value={buds}>
-                <Outlet />
-            </BadgerBudsDataContext.Provider> */}
       </div>
     </div>
   );
