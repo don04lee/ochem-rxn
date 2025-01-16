@@ -1,22 +1,15 @@
 import { Col, Container, Row } from "react-bootstrap";
+import "../../../index.css";
 
 export default function OChemHistory(props) {
   return (
-    <div>
+    <div className="center" style={{ textAlign: "center" }}>
       <h1>Reaction History</h1>
       <br />
       <Container fluid={true}>
         <Row>
-          <Col xs={12} lg={4} xl={6}>
-            <p>
-              Interested in adopting a cat?{" "}
-              <a
-                target="_blank"
-                href="https://www.madisoncatproject.org/browse-indoor"
-              >
-                See them here!
-              </a>
-            </p>
+          <Col xs={12}>
+            <p></p>
             <h3>From the Madison Cat Project...</h3>
             <p>
               "Madison Cat Project saves cats through partnerships with other

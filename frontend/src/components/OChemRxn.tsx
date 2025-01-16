@@ -23,7 +23,7 @@ export default function OChemRxn() {
   return (
     <div>
       <OChemNavbar />
-      <div style={{ margin: "1rem" }}>
+      <div style={{ margin: "0.5rem" }}>
         <Outlet />
       </div>
     </div>

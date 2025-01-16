@@ -1,8 +1,11 @@
-import { Col, Container, Row } from "react-bootstrap";
-import React, { useState } from "react";
+import { Col, Container, Row, Button, Form } from "react-bootstrap";
+import React, { useState, useEffect, useCallback } from "react";
+import parse from "html-react-parser";
+import "../../../index.css";
 
 export default function OChemPredict(props) {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<string>("");
+  const [svg, setSvg] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
@@ -13,33 +16,62 @@ export default function OChemPredict(props) {
     console.log(value);
   };
 
+  const renderMolecule = useCallback(() => {
+    if (!window.RDKit) {
+      console.error("RDKit is not loaded");
+      return;
+    }
+
+    try {
+      const mol = window.RDKit.get_mol(value);
+      if (!mol) return;
+
+      const svgOutput = mol.get_svg();
+      setSvg(svgOutput);
+    } catch (error) {
+      console.error("Invalid SMILES input:", error);
+      setSvg("");
+    }
+  }, [value]);
+
+  useEffect(() => {
+    renderMolecule();
+  }, [renderMolecule]);
+
   return (
-    <div>
+    <div className="center" style={{ textAlign: "center" }}>
       <h1>Predict Products based on Reactants</h1>
       <br />
       <Container fluid={true}>
         <Row>
-          <Col xs={12} lg={4} xl={6}>
+          <Col xs={12}>
             <p>
-              Insert your reactants in SMILES Format, ie:
-              BrBr.c1ccc2cc3ccccc3cc2c1
+              Insert your reactants in{" "}
+              <a href="https://en.wikipedia.org/wiki/Simplified_Molecular_Input_Line_Entry_System">
+                SMILES
+              </a>{" "}
+              format, ie: BrBr.c1ccc2cc3ccccc3cc2c1
             </p>
             <p>
               There must be at least <strong>two</strong> reactants (separated
               by periods).
             </p>
-            <h3>Type reactants here:</h3>
+            <h5>Type reactants here:</h5>
             <div>
-              <form onSubmit={handleSubmit}>
-                <input
+              <Form onSubmit={handleSubmit}>
+                <Form.Control
                   type="text"
                   value={value}
                   onChange={handleChange}
                   placeholder="Enter reactants here"
                 />
-                <p>Entered text: {value}</p>
-                <button type="submit"></button>
-              </form>
+                <br></br>
+                <Button type="submit" variant="primary">
+                  Submit
+                </Button>
+              </Form>
+              <p>Entered text: {value}</p>
+              <div id="output">{parse(svg)}</div>
             </div>
           </Col>
         </Row>
