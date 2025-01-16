@@ -10,15 +10,7 @@ export default function OChemHistory(props) {
         <Row>
           <Col xs={12}>
             <p></p>
-            <h3>From the Madison Cat Project...</h3>
-            <p>
-              "Madison Cat Project saves cats through partnerships with other
-              shelters and our community. Whether it’s partnering with area
-              shelters to bring in cats who need another chance or supporting
-              farmers and other folks who need help managing their outdoor cat
-              colonies by offering affordable spay/neuter surgeries and rehoming
-              options, we help hundreds of cats (and people) each year!"
-            </p>
+            <h3>Placeholder -- take from PostgreSQL</h3>{" "}
           </Col>
         </Row>
       </Container>

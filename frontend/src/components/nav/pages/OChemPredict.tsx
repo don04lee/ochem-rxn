@@ -6,6 +6,7 @@ import "../../../index.css";
 export default function OChemPredict(props) {
   const [value, setValue] = useState<string>("");
   const [svg, setSvg] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
@@ -13,7 +14,6 @@ export default function OChemPredict(props) {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(value);
   };
 
   const renderMolecule = useCallback(() => {
@@ -24,9 +24,15 @@ export default function OChemPredict(props) {
 
     try {
       const mol = window.RDKit.get_mol(value);
-      if (!mol) return;
+      if (!mol) {
+        setErrorMessage("Invalid molecule(s)");
+        setSvg("");
+        console.error("No molecule is found");
+        return;
+      }
 
       const svgOutput = mol.get_svg();
+      setErrorMessage("");
       setSvg(svgOutput);
     } catch (error) {
       console.error("Invalid SMILES input:", error);
@@ -70,8 +76,14 @@ export default function OChemPredict(props) {
                   Submit
                 </Button>
               </Form>
-              <p>Entered text: {value}</p>
-              <div id="output">{parse(svg)}</div>
+              <h5 style={{ marginTop: "1rem" }}>Entered text: {value}</h5>
+              {errorMessage ? (
+                <p style={{ color: "red", fontWeight: "bold" }}>
+                  {errorMessage}
+                </p>
+              ) : (
+                <div id="output">{parse(svg)}</div>
+              )}
             </div>
           </Col>
         </Row>
