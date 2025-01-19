@@ -8,6 +8,8 @@ from backend.models import Base, ReactionHistory
 from rxn4chemistry import RXN4ChemistryWrapper
 from backend.init_db import init_db
 
+app = FastAPI(title="Organic Chemistry Reaction Predictor API")
+
 # Must set RXN_API_KEY as environment variable to make RXN4Chemistry work
 api_key = os.getenv("RXN_API_KEY")
 if not api_key:
@@ -16,21 +18,16 @@ else:
     print(f"RXN_API_KEY is set:  {api_key[:5]}...")
 
 PROJECT_NAME = "ochem-rxn-predictor"  # Edit this to what project name you would like
-
 rxn = RXN4ChemistryWrapper(api_key)
-rxn.create_project(PROJECT_NAME)
-rxn.set_project(rxn.project_id)
-print(f"The project ID is {rxn.project_id} with name {PROJECT_NAME}")
-
-init_db()
-print("Database has been initialized.")
-
-app = FastAPI(title="Organic Chemistry Reaction Predictor API")
 
 
 @app.on_event("startup")
 async def startup():
+    rxn.create_project(PROJECT_NAME)
+    rxn.set_project(rxn.project_id)
+    print(f"The project ID is {rxn.project_id} with name {PROJECT_NAME}")
     await init_db()
+    print("Database has been initialized.")
 
 
 class ReactionInput(BaseModel):
