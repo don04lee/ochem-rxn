@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
 from sqlalchemy.future import select
@@ -8,7 +9,18 @@ from backend.models import Base, ReactionHistory
 from rxn4chemistry import RXN4ChemistryWrapper
 from backend.init_db import init_db
 
+origins = [
+    "http://localhost:5173",
+]
+
 app = FastAPI(title="Organic Chemistry Reaction Predictor API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Must set RXN_API_KEY as environment variable to make RXN4Chemistry work
 api_key = os.getenv("RXN_API_KEY")

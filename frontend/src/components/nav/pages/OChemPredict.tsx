@@ -1,19 +1,35 @@
 import { Col, Container, Row, Button, Form } from "react-bootstrap";
 import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 import parse from "html-react-parser";
 import "../../../index.css";
 
 export default function OChemPredict(props) {
   const [value, setValue] = useState<string>("");
   const [svg, setSvg] = useState<string>("");
+  const [prediction, setPrediction] = useState(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const mol = window.RDKit.get_mol(value);
+
+    if (errorMessage === "") {
+      try {
+        const response = await axios.post("http://3.149.254.222:8000/predict", {
+          mol,
+        });
+        setPrediction(response.data);
+        console.log(response);
+      } catch (err) {
+        setErrorMessage("An error occurred while predicting the product.");
+        console.error(err);
+      }
+    }
   };
 
   const renderMolecule = useCallback(() => {
@@ -43,6 +59,22 @@ export default function OChemPredict(props) {
   useEffect(() => {
     renderMolecule();
   }, [renderMolecule]);
+
+  // useEffect(() => {
+  //   try {
+  //     const mol = window.RDKit.get_mol(p);
+  //     if (!mol) {
+  //       return;
+  //     }
+
+  //     const svgOutput = mol.get_svg();
+  //     setErrorMessage("");
+  //     setSvg(svgOutput);
+  //   } catch (error) {
+  //     console.error("Invalid SMILES input:", error);
+  //     setSvg("");
+  //   }
+  // }, [prediction]);
 
   return (
     <div className="center" style={{ textAlign: "center" }}>
@@ -83,6 +115,12 @@ export default function OChemPredict(props) {
                 </p>
               ) : (
                 <div id="output">{parse(svg)}</div>
+              )}
+              {prediction && (
+                <div>
+                  <h2>Prediction Result</h2>
+                  <pre>{JSON.stringify(prediction, null, 2)}</pre>
+                </div>
               )}
             </div>
           </Col>
