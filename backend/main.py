@@ -122,6 +122,8 @@ async def predict_reaction(reaction: ReactionInput):
             raise HTTPException(status_code=501, detail="No prediction results found.")
 
         pred_product = attempts[0]["smiles"]
+        pred_product_parts = pred_product.split(">>")
+        pred_product = pred_product_parts[1]
         confidence = attempts[0].get("confidence", "Unknown")
 
         return {

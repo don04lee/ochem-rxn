@@ -6,8 +6,9 @@ import "../../../index.css";
 
 export default function OChemPredict(props) {
   const [reactants, setReactants] = useState<string>("");
+  const [pred, setPred] = useState<string>("");
   const [svg, setSvg] = useState<string>("");
-  const [prediction, setPrediction] = useState(null);
+  const [predSvg, setPredSvg] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,22 +20,25 @@ export default function OChemPredict(props) {
 
     if (errorMessage === "") {
       console.log(reactants);
-      // try {
-      //   const response = await axios.post(
-      //     "http://3.149.254.222:8000/predict",
-      //     { reactants: reactants },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //     }
-      //   );
-      //   setPrediction(response.data);
-      //   console.log(response);
-      // } catch (err) {
-      //   setErrorMessage("An error occurred while predicting the product.");
-      //   console.error(err);
-      // }
+      try {
+        const response = await axios.post(
+          "http://3.149.254.222:8000/predict",
+          { reactants: reactants },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const predProduct = response.data.predicted_product;
+        const product = predProduct.split(">>")[1];
+        setPred(product);
+        console.log(response.data);
+        console.log(product);
+      } catch (err) {
+        setErrorMessage("An error occurred while predicting the product.");
+        console.error(err);
+      }
     }
   };
 
@@ -62,9 +66,31 @@ export default function OChemPredict(props) {
     }
   }, [reactants]);
 
+  const renderProduct = useCallback(() => {
+    if (!window.RDKit) {
+      console.error("RDKit is not loaded");
+      return;
+    }
+
+    try {
+      const predMol = window.RDKit.get_mol(pred);
+      if (!predMol) {
+        return;
+      }
+
+      const svgOutput = predMol.get_svg();
+      setErrorMessage("");
+      setPredSvg(svgOutput);
+    } catch (error) {
+      console.error("Invalid SMILES input:", error);
+      setPredSvg("");
+    }
+  }, [pred]);
+
   useEffect(() => {
     renderMolecule();
-  }, [renderMolecule]);
+    renderProduct();
+  }, [renderMolecule, renderProduct]);
 
   // useEffect(() => {
   //   try {
@@ -122,10 +148,10 @@ export default function OChemPredict(props) {
               ) : (
                 <div id="output">{parse(svg)}</div>
               )}
-              {prediction && (
+              {predSvg && (
                 <div>
-                  <h2>Prediction Result</h2>
-                  <pre>{JSON.stringify(prediction, null, 2)}</pre>
+                  <h4>Prediction Result</h4>
+                  <pre>{parse(predSvg)}</pre>
                 </div>
               )}
             </div>
