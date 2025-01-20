@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
+import time
 from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.database import SessionLocal, get_db, init_db
@@ -9,9 +10,11 @@ from backend.models import Base, ReactionHistory
 from rxn4chemistry import RXN4ChemistryWrapper
 from backend.init_db import init_db
 
+# Add CORS middleware
 origins = [
     "http://localhost:5173",
 ]
+
 
 app = FastAPI(title="Organic Chemistry Reaction Predictor API")
 app.add_middleware(
@@ -85,6 +88,7 @@ async def predict_reaction(reaction: ReactionInput):
     - There must be at least two reactants to predict the product
     """
     try:
+
         # Submit the reaction prediction request
         pred_response = rxn.predict_reaction(reaction.reactants)
         pred_id = pred_response.get("prediction_id")
@@ -94,10 +98,21 @@ async def predict_reaction(reaction: ReactionInput):
                 status_code=500, detail="Failed to retrieve prediction ID."
             )
 
-        # Polling until result is SUCCESS
-        while True:
+        # Polling with delay
+        max_retries = 5
+        retry_delay = 1
+        attempts = 0
+
+        while attempts < max_retries:
             result = rxn.get_predict_reaction_results(pred_id)
-            if result["response"]["payload"]["status"] == "SUCCESS":
+
+            if result.get("response", {}).get("status") == 429:
+                time.sleep(retry_delay)
+                retry_delay *= 2
+                attempts += 1
+                continue
+
+            if result.get("response", {}).get("payload", {}).get("status") == "SUCCESS":
                 break
 
         # Extract predicted product and confidence

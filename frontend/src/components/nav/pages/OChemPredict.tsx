@@ -5,30 +5,36 @@ import parse from "html-react-parser";
 import "../../../index.css";
 
 export default function OChemPredict(props) {
-  const [value, setValue] = useState<string>("");
+  const [reactants, setReactants] = useState<string>("");
   const [svg, setSvg] = useState<string>("");
   const [prediction, setPrediction] = useState(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    setReactants(e.target.value);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const mol = window.RDKit.get_mol(value);
 
     if (errorMessage === "") {
-      try {
-        const response = await axios.post("http://3.149.254.222:8000/predict", {
-          mol,
-        });
-        setPrediction(response.data);
-        console.log(response);
-      } catch (err) {
-        setErrorMessage("An error occurred while predicting the product.");
-        console.error(err);
-      }
+      console.log(reactants);
+      // try {
+      //   const response = await axios.post(
+      //     "http://3.149.254.222:8000/predict",
+      //     { reactants: reactants },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //       },
+      //     }
+      //   );
+      //   setPrediction(response.data);
+      //   console.log(response);
+      // } catch (err) {
+      //   setErrorMessage("An error occurred while predicting the product.");
+      //   console.error(err);
+      // }
     }
   };
 
@@ -39,7 +45,7 @@ export default function OChemPredict(props) {
     }
 
     try {
-      const mol = window.RDKit.get_mol(value);
+      const mol = window.RDKit.get_mol(reactants);
       if (!mol) {
         setErrorMessage("Invalid molecule(s)");
         setSvg("");
@@ -54,7 +60,7 @@ export default function OChemPredict(props) {
       console.error("Invalid SMILES input:", error);
       setSvg("");
     }
-  }, [value]);
+  }, [reactants]);
 
   useEffect(() => {
     renderMolecule();
@@ -99,7 +105,7 @@ export default function OChemPredict(props) {
               <Form onSubmit={handleSubmit}>
                 <Form.Control
                   type="text"
-                  value={value}
+                  value={reactants}
                   onChange={handleChange}
                   placeholder="Enter reactants here"
                 />
@@ -108,7 +114,7 @@ export default function OChemPredict(props) {
                   Submit
                 </Button>
               </Form>
-              <h5 style={{ marginTop: "1rem" }}>Entered text: {value}</h5>
+              <h5 style={{ marginTop: "1rem" }}>Entered text: {reactants}</h5>
               {errorMessage ? (
                 <p style={{ color: "red", fontWeight: "bold" }}>
                   {errorMessage}
